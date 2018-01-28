@@ -2,7 +2,8 @@
 
 namespace Stiphle\Throttle;
 
-use \PHPUnit_Framework_TestCase;
+use phpmock\phpunit\PHPMock as FunctionMockTrait;
+use PHPUnit\Framework\TestCase;
 use Storage\Process;
 
 /**
@@ -21,8 +22,10 @@ use Storage\Process;
  *
  * @author      Dave Marshall <david.marshall@atstsolutions.co.uk>
  */
-class TimeWindowTest extends PHPUnit_Framework_TestCase
+class TimeWindowTest extends TestCase
 {
+    use FunctionMockTrait;
+
     protected $storage = null;
 
     public function setup()
@@ -33,13 +36,15 @@ class TimeWindowTest extends PHPUnit_Framework_TestCase
     /**
      * Really crap test here, without mocking the system time, it's difficult to
      * know when you're going to throttled...
+     *
+     * @group throttle
      */
     public function testGetEstimate()
     {
         $timeout = strtotime('+5 seconds', microtime(1));
         $count = 0;
         while (microtime(1) < $timeout) {
-            $wait = $this->throttle->throttle('dave', 5, 1000);
+            $this->throttle->throttle('dave', 5, 1000);
             if (microtime(1) < $timeout) {
                 $count++;
             }
@@ -48,5 +53,3 @@ class TimeWindowTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(25, $count);
     }
 }
-
-

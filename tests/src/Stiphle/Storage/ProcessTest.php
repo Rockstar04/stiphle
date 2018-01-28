@@ -5,7 +5,8 @@
  */
 namespace Stiphle\Storage;
 
-use \PHPUnit_Framework_TestCase;
+use phpmock\phpunit\PHPMock as FunctionMockTrait;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This file is part of Stiphle
@@ -23,8 +24,10 @@ use \PHPUnit_Framework_TestCase;
  *
  * @author      Dave Marshall <david.marshall@atstsolutions.co.uk>
  */
-class ProcessTest extends PHPUnit_Framework_TestCase
+class ProcessTest extends TestCase
 {
+    use FunctionMockTrait;
+
     protected $storage = null;
 
     public function setup()
@@ -33,43 +36,63 @@ class ProcessTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group storage
+     */
+    public function testLockAndUnlock()
+    {
+        $time = $this->getFunctionMock(__NAMESPACE__, 'microtime');
+        $time->expects($this->any())->will($this->onConsecutiveCalls(0.5, 0.501, 1, 1.5, 2, PHP_INT_MAX));
+
+        $this->storage->lock('dave');
+        $this->assertAttributeEquals(['dave' => true], 'locked', $this->storage);
+        $this->storage->unlock('dave');
+        $this->assertAttributeEquals(['dave' => false], 'locked', $this->storage);
+    }
+
+    /**
+     * @group storage
+     */
+    public function testGetAndSet()
+    {
+        $this->storage->set('dave', 10);
+        $this->assertAttributeEquals(['dave' => 10], 'values', $this->storage);
+        $value = $this->storage->get('dave');
+        $this->assertEquals(10, $value);
+    }
+
+    /**
+     * @group storage
+     */
+    public function testGetNull()
+    {
+        $value = $this->storage->get('dave');
+        $this->assertEquals(null, $value);
+    }
+
+    /**
+     * @group storage
      * @expectedException Stiphle\Storage\LockWaitTimeoutException
      */
     public function testLockThrowsLockWaitTimeoutException()
     {
-        $this->storage->lock('dave');        
+        $time = $this->getFunctionMock(__NAMESPACE__, 'microtime');
+        $time->expects($this->any())->will($this->onConsecutiveCalls(0.5, 0.501, 1, 1.5, 2, PHP_INT_MAX));
+
+        $this->storage->lock('dave');
         $this->storage->lock('dave');
     }
 
-
+    /**
+     * @group storage
+     * @expectedException Stiphle\Storage\LockWaitTimeoutException
+     */
     public function testLockRespectsLockWaitTimeoutValue()
     {
-        /**
-         * Test we can do this 
-         */
-        $this->storage->lock('dave');
-        try {
-            $start = microtime(1);
-            $this->storage->lock('dave');
-        } catch (LockWaitTimeoutException $e) {
-            $caught = microtime(1);
-            $diff   = $caught - $start;
-            if (round($diff) != 1) {
-                $this->markTestSkipped("Don't think the timings will be accurate enough, expected exception after 1 second, was $diff");
-            }
-        }
+        $time = $this->getFunctionMock(__NAMESPACE__, 'microtime');
+        $time->expects($this->exactly(6))->will($this->onConsecutiveCalls(0.5, 0.501, 1, 1.5, 2, PHP_INT_MAX));
 
+        $this->storage->lock('dave');
         $this->storage->setLockWaitTimeout(2000);
-        try {
-            $start = microtime(1);
-            $this->storage->lock('dave');
-            $this->fail("should not get to this point");
-        } catch (LockWaitTimeoutException $e) {
-            $caught = microtime(1);
-            $diff   = $caught - $start;
-            $this->assertEquals(2, round($diff), "Exception thrown after approximately 2000 milliseconds");
-        }       
+        $this->storage->lock('dave');
     }
 }
-
-

@@ -47,7 +47,7 @@ class Process implements StorageInterface
     }
 
     /**
-     * Lock 
+     * Lock
      *
      * If we're using storage, we might have multiple requests coming in at
      * once, so we lock the storage
@@ -61,11 +61,13 @@ class Process implements StorageInterface
         }
 
         $start = microtime(true);
-        while($this->locked[$key]) {
+        while ($this->locked[$key]) {
             $passed = (microtime(true) - $start) * 1000;
             if ($passed > $this->lockWaitTimeout) {
                 throw new LockWaitTimeoutException();
             }
+
+            usleep(50000);
         }
 
         $this->locked[$key] = true;
@@ -84,7 +86,7 @@ class Process implements StorageInterface
     }
 
     /**
-     * Get 
+     * Get
      *
      * @param string $key
      * @return int
@@ -99,7 +101,7 @@ class Process implements StorageInterface
     }
 
     /**
-     * set 
+     * Set
      *
      * @param string $key
      * @param mixed $value
@@ -110,6 +112,3 @@ class Process implements StorageInterface
         $this->values[$key] = $value;
     }
 }
-
-
-

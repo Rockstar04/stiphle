@@ -5,7 +5,7 @@
  */
 namespace Stiphle\Throttle;
 
-use \PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Storage\Process;
 
 /**
@@ -23,8 +23,10 @@ use Storage\Process;
  * DESCRIPTION
  *
  * @author      Dave Marshall <david.marshall@atstsolutions.co.uk>
+ *
+ * @coversDefaultClass \Stiphle\Throttle\LeakyBucket
  */
-class LeakyBucketTest extends PHPUnit_Framework_TestCase
+class LeakyBucketTest extends TestCase
 {
     protected $storage = null;
 
@@ -34,11 +36,31 @@ class LeakyBucketTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group throttle
+     * @covers ::throttle
+     * @covers ::getNewRatio
+     * @covers ::getStorageKey
+     * @covers ::setLastRatio
+     * @covers ::setLastRequest
+     */
+    public function testThrottle()
+    {
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
+
+    /**
      * This test assumes your machine is capable of processing the first five
      * calls in less that a second :)
      *
      * Nothing special here, ideally we need to mock the storage out and test it
      * with different values etc
+     *
+     * @group throttle
+     * @covers ::getEstimate
+     * @covers ::getNewRatio
+     * @covers ::getStorageKey
      */
     public function testGetEstimate()
     {
@@ -50,6 +72,14 @@ class LeakyBucketTest extends PHPUnit_Framework_TestCase
         $this->assertGreaterThan(0, $this->throttle->getEstimate('dave', 5, 1000));
         $this->assertGreaterThan(0, $this->throttle->throttle('dave', 5, 1000));
     }
+
+    /**
+     * @group throttle
+     */
+    public function testSetStorage()
+    {
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 }
-
-

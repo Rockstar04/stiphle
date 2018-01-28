@@ -3,10 +3,13 @@
 
 namespace Stiphle\Storage;
 
-use \PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RedisTest extends PHPUnit_Framework_TestCase
+class RedisTest extends TestCase
 {
+    /**
+     * @group storage
+     */
     public function testLockThrowsLockWaitTimeoutException()
     {
         $redisClient = $this->getMockBuilder(\Predis\Client::class)
@@ -31,6 +34,9 @@ class RedisTest extends PHPUnit_Framework_TestCase
         $storage->lock('dave');
     }
 
+    /**
+     * @group storage
+     */
     public function testStorageCanBeUnlocked()
     {
         $redisClient = $this->getMockBuilder(\Predis\Client::class)

@@ -5,7 +5,7 @@
  */
 namespace Stiphle\Storage;
 
-use \PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This file is part of Stiphle
@@ -23,7 +23,7 @@ use \PHPUnit_Framework_TestCase;
  *
  * @author      Dave Marshall <david.marshall@atstsolutions.co.uk>
  */
-class ApcTest extends PHPUnit_Framework_TestCase
+class ApcTest extends TestCase
 {
     protected $storage = null;
 
@@ -38,6 +38,7 @@ class ApcTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group storage
      * @expectedException Stiphle\Storage\LockWaitTimeoutException
      */
     public function testLockThrowsLockWaitTimeoutException()
@@ -46,11 +47,13 @@ class ApcTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped('APC and APCu needs enabling for the cli via apc.enable_cli=1 or apcu.enable_cli=1');
         }
 
-        $this->storage->lock('dave');        
+        $this->storage->lock('dave');
         $this->storage->lock('dave');
     }
 
-
+    /**
+     * @group storage
+     */
     public function testLockRespectsLockWaitTimeoutValue()
     {
         if (!ini_get('apc.enable_cli') && !ini_get('apcu.enable_cli')) {
@@ -58,7 +61,7 @@ class ApcTest extends PHPUnit_Framework_TestCase
         }
 
         /**
-         * Test we can do this 
+         * Test we can do this
          */
         $this->storage->lock('dave');
         try {
@@ -81,8 +84,6 @@ class ApcTest extends PHPUnit_Framework_TestCase
             $caught = microtime(1);
             $diff   = $caught - $start;
             $this->assertEquals(2, round($diff), "Exception thrown after approximately 2000 milliseconds");
-        }       
+        }
     }
 }
-
-
